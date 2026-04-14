@@ -162,6 +162,10 @@
     // ==========================================
 
     let userProfile = {};
+    // --- ここを追加！：URLパラメータから qid を取得 ---
+    const urlParams = new URLSearchParams(window.location.search);
+    const QID = urlParams.get('q') || "q_1"; // ?q=○○ が無い場合はデフォルトで q_1
+    // ------------------------------------------------    
 
     window.onload = function() {
       // 1. LIFF初期化
