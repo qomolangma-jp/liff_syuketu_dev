@@ -257,7 +257,7 @@
       // 送信するデータ
       const answerData = {
         lineId: userProfile.userId,
-        name: userProfile.displayName,
+        qid: QID, // ★ここを追加！ これでGASが「q_1」列を狙って保存できるようになります
         answer: selectedValue
       };
 
