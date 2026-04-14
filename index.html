@@ -252,13 +252,14 @@
         }
       }
 
-      // 未選択ブロック
       if (!selectedValue) {
         alert("回答を選択してください。");
         return;
       }
 
-      // 二重送信防止のためボタンを無効化
+      // ★追加：備考欄の値を取得
+      const memoValue = document.getElementById('memo-input').value;
+
       const submitBtn = document.getElementById('submit-btn');
       submitBtn.disabled = true;
       submitBtn.textContent = "送信中...";
@@ -266,8 +267,9 @@
       // 送信するデータ
       const answerData = {
         lineId: userProfile.userId,
-        qid: QID, // ★ここを追加！ これでGASが「q_1」列を狙って保存できるようになります
-        answer: selectedValue
+        qid: QID, 
+        answer: selectedValue,
+        memo: memoValue // ★追加：GASに備考を送る
       };
 
       // CORS（クロスドメイン通信）対策として、text/plainで送信
