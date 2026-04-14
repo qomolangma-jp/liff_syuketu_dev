@@ -146,8 +146,13 @@
       <div id="q-text" class="question-text"></div>
       
       <form id="attendance-form">
-        <div id="radio-buttons" class="radio-group">
-          </div>
+        <div id="radio-buttons" class="radio-group"></div>
+
+        <div style="margin-bottom: 32px;">
+          <label class="question-title" style="font-size: 14px;">備考（任意）</label>
+          <textarea id="memo-input" rows="3" style="width: 100%; border-radius: 8px; border: 1px solid var(--border-color); padding: 12px; font-family: inherit; resize: vertical; box-sizing: border-box; background-color: #fafafa;" placeholder="連絡事項などがあればご記入ください"></textarea>
+        </div>
+
         <button type="button" id="submit-btn" class="btn-submit" onclick="submitForm()">回答を送信する</button>
       </form>
     </div>
@@ -198,32 +203,36 @@
     fetch(requestUrl)
         .then(response => response.json())
         .then(res => {
-        // --- ここが重要：エラーが返ってきた場合の処理 ---
-        if (res.error) {
-            document.getElementById('loading').innerHTML = 
-            `<p style="color:red; font-weight:bold;">${res.message}</p>
-            <p style="font-size:12px; color:gray;">(Error code: ${res.error})</p>`;
-            return;
-        }
-        
-        // データが正常な場合のみ画面を作る
-        document.getElementById('q-title').textContent = res.title;
-        document.getElementById('q-text').textContent = res.text;
-        
-        const radioContainer = document.getElementById('radio-buttons');
-        radioContainer.innerHTML = ''; // 中身を一度空にする
-        
-        if (res.selections && Array.isArray(res.selections)) {
-            res.selections.forEach((sel) => {
-            const label = document.createElement('label');
-            label.className = 'radio-label';
-            label.innerHTML = `<input type="radio" name="q1_answer" value="${sel}"> ${sel}`;
-            radioContainer.appendChild(label);
-            });
-        }
+              if (res.error) {
+                document.getElementById('loading').innerHTML = `<p style="color:red; font-weight:bold;">${res.message}</p>`;
+                return;
+              }
+              
+              document.getElementById('q-title').textContent = res.title;
+              document.getElementById('q-text').textContent = res.text;
+              
+              const radioContainer = document.getElementById('radio-buttons');
+              radioContainer.innerHTML = '';
+              
+              if (res.selections && Array.isArray(res.selections)) {
+                res.selections.forEach((sel) => {
+                  const label = document.createElement('label');
+                  label.className = 'radio-label';
+                  
+                  // ★追加：過去の回答(res.previousAnswer)と一致したらチェックを入れる
+                  const isChecked = (sel === res.previousAnswer) ? "checked" : "";
+                  label.innerHTML = `<input type="radio" name="q1_answer" value="${sel}" ${isChecked}> ${sel}`;
+                  radioContainer.appendChild(label);
+                });
+              }
 
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('form-container').style.display = 'block';
+              // ★追加：過去の備考(res.previousMemo)があればテキストエリアに入れる
+              if (res.previousMemo) {
+                document.getElementById('memo-input').value = res.previousMemo;
+              }
+
+              document.getElementById('loading').style.display = 'none';
+              document.getElementById('form-container').style.display = 'block';
         })
         .catch(error => {
         console.error("API Fetch error:", error);
